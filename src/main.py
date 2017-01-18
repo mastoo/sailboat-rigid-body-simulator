@@ -1,3 +1,11 @@
+"""
+Author  :  Alfonso Breglia
+Created :  10/01/2017
+Released:  -
+
+
+"""
+
 import numpy as np
 import numpy.matlib as ml
 from numpy.linalg import inv
@@ -10,6 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 VERSION = "v0.1"
 STATE_SIZE  = 13
 
+#Quaternion to rotation matrix conversion
 def quaternion_to_matrix(quaternion):
     #r i j k
     q = ml.matrix(quaternion,dtype=np.float64,copy=True)
@@ -23,6 +32,7 @@ def quaternion_to_matrix(quaternion):
         [    q[1, 2]+q[3, 0], 1.0-q[1, 1]-q[3, 3],     q[2, 3]-q[1, 0]],
         [    q[1, 3]-q[2, 0],     q[2, 3]+q[1, 0], 1.0-q[1, 1]-q[2, 2]]])
 
+#Rotation matrix to quaternion Conversion
 def matrix_to_quaternion(m):
     q = ml.zeros((4,1))
     tr = np.trace(m)
@@ -66,8 +76,20 @@ def matrix_to_quaternion(m):
             q[0] = (m[1,0] - m[0,1]) * s;    
     return q
 
-    
 
+#quaternion multiplication    
+def q_mult(q1, q2):
+    s1 = q1[0,0]
+    s2 = q2[0,0]
+    
+    v1 = q1[1:,0]
+    v2 = q2[1:,0]
+    r = ml.zeros((4,1))
+    
+    r[0,0] = s1*s2 - (v1.T).dot(v2)
+    r[1:,0] = s1*v2+s2*v1 + np.cross(v1,v2,axis=0)
+
+    return r
         
 #rigid body model of a boat
 class boat_rb:
@@ -153,6 +175,17 @@ def star(a):
         
 
 def compute_force_and_torque(boat):
+    
+    #compute air lift
+    #L = 1/2 CL rho A V^2
+    #compute air drag
+    #D
+
+    #compute hidronymic lift
+    
+    #compute hydronymic draw
+   
+
     boat.force  = np.zeros((3,1))
     boat.force[0,0] = 1
     
@@ -162,18 +195,7 @@ def compute_force_and_torque(boat):
 
     boat.torque[2,0] = 0.5
 
-def q_mult(q1, q2):
-    s1 = q1[0,0]
-    s2 = q2[0,0]
-    
-    v1 = q1[1:,0]
-    v2 = q2[1:,0]
-    r = ml.zeros((4,1))
-    
-    r[0,0] = s1*s2 - (v1.T).dot(v2)
-    r[1:,0] = s1*v2+s2*v1 + np.cross(v1,v2,axis=0)
 
-    return r
     
     
 def compute_dydt(t, y, boat):
